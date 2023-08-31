@@ -12,13 +12,15 @@ class VideoInfo extends StatefulWidget {
 }
 
 class _VideoInfoState extends State<VideoInfo> {
-  List info = [];
+  List videoInfo = [];
 
-  _initData() {
-    DefaultAssetBundle.of(context)
+  _initData() async {
+    await DefaultAssetBundle.of(context)
         .loadString('json/videoinfo.json')
         .then((value) {
-      info = json.decode(value);
+      setState(() {
+        videoInfo = json.decode(value);
+      });
     });
   }
 
@@ -204,12 +206,115 @@ class _VideoInfoState extends State<VideoInfo> {
                         const SizedBox(width: 20),
                       ],
                     ),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: _listView(),
+                    ),
                   ],
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  _listView() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+      itemCount: videoInfo.length,
+      itemBuilder: (_, index) {
+        return GestureDetector(
+          onTap: () {},
+          child: _buildCard(index),
+        );
+      },
+    );
+  }
+
+  _buildCard(int index) {
+    return SizedBox(
+      height: 135,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                      image: AssetImage(
+                        videoInfo[index]['thumbnail'],
+                      ),
+                      fit: BoxFit.cover),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    videoInfo[index]['title'],
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  //const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: Text(
+                      videoInfo[index]['time'],
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Container(
+                width: 80,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFeaeefc),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Center(
+                  child: Text(
+                    '15s rest',
+                    style: TextStyle(
+                      color: Color(0xFF839fed),
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  for (int i = 0; i < 70; i++)
+                    Container(
+                      width: 3,
+                      height: 1,
+                      decoration: BoxDecoration(
+                        color:
+                            i.isEven ? const Color(0xFF839fed) : Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
