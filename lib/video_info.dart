@@ -16,6 +16,7 @@ class _VideoInfoState extends State<VideoInfo> {
   List videoInfo = [];
   bool _playArea = false;
   bool _isPlaying = false;
+  bool _disposed = false;
   VideoPlayerController? _controller;
 
   _initData() async {
@@ -32,6 +33,12 @@ class _VideoInfoState extends State<VideoInfo> {
   void initState() {
     super.initState();
     _initData();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -304,7 +311,19 @@ class _VideoInfoState extends State<VideoInfo> {
       });
   }
 
-  void _onControllerUpdate() async {}
+  void _onControllerUpdate() async {
+    final controller = _controller;
+    if (controller == null) {
+      debugPrint('Controller is null');
+      return;
+    }
+    if (!controller.value.isInitialized) {
+      debugPrint('Controller can not be initialized');
+      return;
+    }
+    final playing = controller.value.isPlaying;
+    _isPlaying = playing;
+  }
 
   _buildCard(int index) {
     return SizedBox(
@@ -393,39 +412,51 @@ class _VideoInfoState extends State<VideoInfo> {
   }
 
   Widget _controlView(BuildContext context) {
-    return Row(
-      children: [
-        ElevatedButton(
-          onPressed: () async {},
-          child: const Icon(
-            Icons.fast_rewind,
-            size: 36,
-            color: Colors.white,
+    return Container(
+      height: 120,
+      width: MediaQuery.of(context).size.width,
+      color: AppColor.gradientSecond,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          InkWell(
+            onTap: () async {},
+            child: const Icon(
+              Icons.fast_rewind,
+              size: 36,
+              color: Colors.white,
+            ),
           ),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            if (_isPlaying) {
-              _controller?.pause();
-            } else {
-              _controller?.play();
-            }
-          },
-          child: const Icon(
-            Icons.play_arrow,
-            size: 36,
-            color: Colors.white,
+          InkWell(
+            onTap: () async {
+              if (_isPlaying) {
+                setState(() {
+                  _isPlaying = false;
+                });
+                _controller?.pause();
+              } else {
+                setState(() {
+                  _isPlaying = true;
+                });
+                _controller?.play();
+              }
+            },
+            child: Icon(
+              _isPlaying ? Icons.pause : Icons.play_arrow,
+              size: 36,
+              color: Colors.white,
+            ),
           ),
-        ),
-        ElevatedButton(
-          onPressed: () async {},
-          child: const Icon(
-            Icons.fast_forward,
-            size: 36,
-            color: Colors.white,
+          InkWell(
+            onTap: () async {},
+            child: const Icon(
+              Icons.fast_forward,
+              size: 36,
+              color: Colors.white,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
