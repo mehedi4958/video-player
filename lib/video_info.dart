@@ -17,6 +17,7 @@ class _VideoInfoState extends State<VideoInfo> {
   bool _playArea = false;
   bool _isPlaying = false;
   bool _disposed = false;
+  int _isPlayingIndex = -1;
   VideoPlayerController? _controller;
 
   _initData() async {
@@ -37,7 +38,10 @@ class _VideoInfoState extends State<VideoInfo> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    _disposed = true;
+    _controller?.pause();
+    _controller?.dispose();
+    _controller = null;
     super.dispose();
   }
 
@@ -301,17 +305,37 @@ class _VideoInfoState extends State<VideoInfo> {
   _onTapVideo(int index) {
     final controller = VideoPlayerController.networkUrl(
         Uri.parse(videoInfo[index]['videoUrl']));
+    final old = _controller;
     _controller = controller;
+    if (old != null) {
+      old.removeListener(_onControllerUpdate);
+      old.pause();
+    }
     setState(() {});
     controller
       ..initialize().then((_) {
+        old?.dispose();
+        _isPlayingIndex = index;
         controller.addListener(_onControllerUpdate);
         controller.play();
         setState(() {});
       });
   }
 
+  var _onUpdateControllerTime;
   void _onControllerUpdate() async {
+    if (_disposed) {
+      return;
+    }
+
+    _onUpdateControllerTime = 0;
+    final now = DateTime.now().microsecondsSinceEpoch;
+    if (_onUpdateControllerTime > now) {
+      return;
+    }
+
+    _onUpdateControllerTime = now + 500;
+
     final controller = _controller;
     if (controller == null) {
       debugPrint('Controller is null');
@@ -420,7 +444,14 @@ class _VideoInfoState extends State<VideoInfo> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           InkWell(
-            onTap: () async {},
+            onTap: () async {
+              final index = _isPlayingIndex - 1;
+              if (index >= 0) {
+                _onTapVideo(index);
+              } else {
+                Get.snackbar('Video', 'No previous video to play');
+              }
+            },
             child: const Icon(
               Icons.fast_rewind,
               size: 36,
@@ -448,7 +479,14 @@ class _VideoInfoState extends State<VideoInfo> {
             ),
           ),
           InkWell(
-            onTap: () async {},
+            onTap: () async {
+              final index = _isPlayingIndex + 1;
+              if (index <= videoInfo.length - 1) {
+                _onTapVideo(index);
+              } else {
+                Get.snackbar('Video', 'No more video to play');
+              }
+            },
             child: const Icon(
               Icons.fast_forward,
               size: 36,
