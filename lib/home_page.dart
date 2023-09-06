@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:video_player/colors.dart';
-import 'package:video_player/video_info.dart';
+import 'package:video_player_app/colors.dart';
+import 'package:video_player_app/video_info.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
