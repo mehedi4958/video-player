@@ -436,6 +436,7 @@ class _VideoInfoState extends State<VideoInfo> {
   }
 
   Widget _controlView(BuildContext context) {
+    final noMute = (_controller?.value.volume ?? 0) > 0;
     return Container(
       height: 120,
       width: MediaQuery.of(context).size.width,
@@ -444,12 +445,59 @@ class _VideoInfoState extends State<VideoInfo> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           InkWell(
+            onTap: () {
+              if (noMute) {
+                _controller?.setVolume(0);
+              } else {
+                _controller?.setVolume(1.0);
+              }
+              setState(() {});
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0.0, 0.0),
+                      blurRadius: 4.0,
+                      color: Color.fromARGB(50, 0, 0, 0),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  noMute ? Icons.volume_up : Icons.volume_off,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          InkWell(
             onTap: () async {
               final index = _isPlayingIndex - 1;
               if (index >= 0) {
                 _onTapVideo(index);
               } else {
-                Get.snackbar('Video', 'No previous video to play');
+                Get.snackbar(
+                  'Video',
+                  '',
+                  snackPosition: SnackPosition.BOTTOM,
+                  icon: const Icon(
+                    Icons.face,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: AppColor.gradientSecond,
+                  colorText: Colors.white,
+                  messageText: const Text(
+                    'No more previous videos to play',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
               }
             },
             child: const Icon(
@@ -484,7 +532,25 @@ class _VideoInfoState extends State<VideoInfo> {
               if (index <= videoInfo.length - 1) {
                 _onTapVideo(index);
               } else {
-                Get.snackbar('Video', 'No more video to play');
+                Get.snackbar(
+                  'Video',
+                  '',
+                  snackPosition: SnackPosition.BOTTOM,
+                  icon: const Icon(
+                    Icons.face,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: AppColor.gradientSecond,
+                  colorText: Colors.white,
+                  messageText: const Text(
+                    'No more videos ahead to play',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
               }
             },
             child: const Icon(
