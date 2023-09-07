@@ -202,7 +202,9 @@ class _VideoInfoState extends State<VideoInfo> {
                           child: Row(
                             children: [
                               InkWell(
-                                onTap: () {},
+                                onTap: () {
+                                  Get.back();
+                                },
                                 child: Icon(
                                   Icons.arrow_back_ios,
                                   size: 20,
@@ -313,14 +315,13 @@ class _VideoInfoState extends State<VideoInfo> {
       old.pause();
     }
     setState(() {});
-    controller
-      ..initialize().then((_) {
-        old?.dispose();
-        _isPlayingIndex = index;
-        controller.addListener(_onControllerUpdate);
-        controller.play();
-        setState(() {});
-      });
+    controller.initialize().then((_) {
+      old?.dispose();
+      _isPlayingIndex = index;
+      controller.addListener(_onControllerUpdate);
+      controller.play();
+      setState(() {});
+    });
   }
 
   var _onUpdateControllerTime;
